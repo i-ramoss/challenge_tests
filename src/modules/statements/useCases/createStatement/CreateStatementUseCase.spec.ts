@@ -4,6 +4,7 @@ import { ICreateUserDTO } from './../../../users/useCases/createUser/ICreateUser
 import { ICreateStatementDTO } from './ICreateStatementDTO';
 import { CreateStatementUseCase } from './CreateStatementUseCase';
 import { CreateUserUseCase } from '../../../users/useCases/createUser/CreateUserUseCase';
+import { CreateStatementError } from "./CreateStatementError";
 
 let usersRepositoryInMemory: InMemoryUsersRepository;
 let statementsRepositoryInMemory: InMemoryStatementsRepository;
@@ -17,9 +18,9 @@ describe('Create Statement', () => {
   }
 
   const statementTest: ICreateStatementDTO = {
-    user_id: '',
+    user_id: '123456',
     description: 'Statement test description',
-    amount: 0,
+    amount: 470,
     type: OperationType.DEPOSIT,
   }
 
@@ -49,5 +50,11 @@ describe('Create Statement', () => {
     expect(statement.description).toEqual(statementTest.description);
     expect(statement.type).toEqual(statementTest.type);
     expect(statement.amount).toEqual(statementTest.amount);
+  })
+
+  it('should not be able to create a new statement for a non-existent user', () => {
+    expect(async () => {
+      await createStatementUseCase.execute(statementTest);
+    }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
   })
 })
