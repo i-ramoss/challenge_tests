@@ -5,6 +5,7 @@ import { CreateUserUseCase } from './../../../users/useCases/createUser/CreateUs
 import { GetStatementOperationUseCase } from './GetStatementOperationUseCase';
 import { ICreateUserDTO } from '../../../users/useCases/createUser/ICreateUserDTO';
 import { ICreateStatementDTO } from '../createStatement/ICreateStatementDTO';
+import { GetStatementOperationError } from './GetStatementOperationError';
 
 let usersRepositoryInMemory: InMemoryUsersRepository;
 let statementsRepositoryInMemory: InMemoryStatementsRepository;
@@ -57,5 +58,21 @@ describe('Get statement operation', () => {
     expect(operation.type).toBe(statementTest.type)
     expect(operation.amount).toBe(statementTest.amount)
     expect(operation.description).toBe(statementTest.description)
+  })
+
+  it('should not be able to get an operation statement from a non-existent user', async () => {
+    const user = await createUserUseCase.execute(userTest);
+
+    const statement = await createStatementUseCase.execute({
+      ...statementTest,
+      user_id: `${user.id}`
+   });
+
+   expect(async () => {
+     await getStatementOperationUseCase.execute({
+       user_id: 'invalid_user_id',
+       statement_id: statement.id as string
+     })
+   }).rejects.toBeInstanceOf(GetStatementOperationError.UserNotFound)
   })
 })
