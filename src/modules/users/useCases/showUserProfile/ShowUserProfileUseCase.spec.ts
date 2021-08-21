@@ -1,3 +1,4 @@
+import { ShowUserProfileError } from './ShowUserProfileError';
 import { InMemoryUsersRepository } from './../../repositories/in-memory/InMemoryUsersRepository';
 import { CreateUserUseCase } from './../createUser/CreateUserUseCase';
 import { ShowUserProfileUseCase } from './ShowUserProfileUseCase';
@@ -30,5 +31,11 @@ describe('Show User Profile', () => {
     expect(userFound.password).not.toEqual(userTest.password);
     expect(userFound.name).toEqual(userTest.name);
     expect(userFound.email).toEqual(userTest.email);
+  })
+
+  it('should not be able to show the data of an non-existent user', () => {
+    expect( async () => {
+      await showUserProfileUseCase.execute("");
+    }).rejects.toBeInstanceOf(ShowUserProfileError);
   })
 })
