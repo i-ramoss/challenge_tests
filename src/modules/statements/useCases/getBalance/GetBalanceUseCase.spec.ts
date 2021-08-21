@@ -5,6 +5,7 @@ import { CreateStatementUseCase } from './../createStatement/CreateStatementUseC
 import { GetBalanceUseCase } from './GetBalanceUseCase';
 import { ICreateUserDTO } from '../../../users/useCases/createUser/ICreateUserDTO';
 import { ICreateStatementDTO } from '../createStatement/ICreateStatementDTO';
+import { GetBalanceError } from './GetBalanceError';
 
 let usersRepositoryInMemory: InMemoryUsersRepository;
 let statementsRepositorInMemory: InMemoryStatementsRepository;
@@ -51,5 +52,11 @@ describe('Get User Balance', () => {
 
     expect(balance).toHaveProperty('balance')
     expect(balance.statement).toEqual(expect.arrayContaining([statement]));
+  })
+
+  it('should not be able to get a balance of an non-existent user', () => {
+    expect(async () => {
+      await getBalanceUseCase.execute({ user_id: '00000' });
+    }).rejects.toBeInstanceOf(GetBalanceError);
   })
 })
