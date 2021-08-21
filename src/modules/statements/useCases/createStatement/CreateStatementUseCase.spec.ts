@@ -20,8 +20,8 @@ describe('Create Statement', () => {
   const statementTest: ICreateStatementDTO = {
     user_id: '123456',
     description: 'Statement test description',
-    amount: 470,
-    type: OperationType.DEPOSIT,
+    amount: 0,
+    type: OperationType.WITHDRAW,
   }
 
   const userTest: ICreateUserDTO = {
@@ -56,5 +56,19 @@ describe('Create Statement', () => {
     expect(async () => {
       await createStatementUseCase.execute(statementTest);
     }).rejects.toBeInstanceOf(CreateStatementError.UserNotFound);
+  })
+
+  it('should not be able to create a new statement if the user has an invalid balance', async () => {
+    const user = await createUserUseCase.execute(userTest);
+
+    expect(async () => {
+      const statement = await createStatementUseCase.execute({
+        ...statementTest,
+        amount: 3500,
+        user_id: `${user.id}`
+      })
+
+      return statement;
+    }).rejects.toBeInstanceOf(CreateStatementError.InsufficientFunds);
   })
 })
