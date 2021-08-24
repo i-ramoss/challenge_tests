@@ -43,4 +43,10 @@ describe('Show User Profile Controller', () => {
     expect(response.body.created_at).not.toBeNull();
     expect(response.body.updated_at).not.toBeNull();
   })
+
+  it('should not be able to show a profile of a non-authenticated user', async () => {
+    const response = await request(app).get('/api/v1/profile').set({ Authorization: `Bearer Inexistent-Token` });
+
+    expect(response.status).toBe(401);
+  })
 })
