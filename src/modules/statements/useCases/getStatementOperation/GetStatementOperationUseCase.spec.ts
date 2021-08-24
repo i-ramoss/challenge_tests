@@ -79,7 +79,7 @@ describe('Get statement operation', () => {
   it('should not be able to get an operation statement from a non-existent statement', async () => {
     const user = await createUserUseCase.execute(userTest);
 
-    const statement = await createStatementUseCase.execute({
+    await createStatementUseCase.execute({
       ...statementTest,
       user_id: `${user.id}`
    });
