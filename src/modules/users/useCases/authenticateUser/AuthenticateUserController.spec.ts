@@ -45,4 +45,21 @@ describe('Authenticate User Controller', () => {
     expect(user.email).toEqual(userTest.email);
     expect(user).not.toHaveProperty('password');
   })
+
+  it('should not be able to authenticate a user with wrong email or password', async () => {
+    await request(app).post('/api/v1/users').send(userTest);
+
+    const password_response = await request(app).post('/api/v1/sessions').send({
+      email: 'wrong_email@test.com',
+      password: userTest.password,
+    })
+
+    const email_response = await request(app).post('/api/v1/sessions').send({
+      email: userTest.email,
+      password: 'incorrect_password',
+    })
+
+    expect(password_response.status).toBe(401);
+    expect(email_response.status).toBe(401);
+  })
 })
