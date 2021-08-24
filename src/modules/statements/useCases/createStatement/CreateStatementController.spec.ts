@@ -62,7 +62,7 @@ describe('Create Statement Controller', () => {
     expect(response.body.amount).toEqual(500);
   })
 
-  it('should be able to create a new deposit withdraw statement', async () => {
+  it('should be able to create a new withdraw statement', async () => {
     await request(app).post('/api/v1/users').send(userTest);
 
     const responseToken = await request(app).post('/api/v1/sessions').send({
@@ -82,5 +82,30 @@ describe('Create Statement Controller', () => {
     expect(response.body.description).toEqual(statementTest.description);
     expect(response.body.type).toEqual(OperationType.WITHDRAW);
     expect(response.body.amount).toEqual(200);
+  })
+
+  it('should not be able to create a new statement for a non-authenticated user', async () => {
+    const response = await request(app).post('/api/v1/statements/withdraw')
+    .send({ amount: 200, description: statementTest.description })
+    .set({ Authorization: 'Bearer Incorrect-Token' })
+
+    expect(response.status).toBe(401);
+  })
+
+  it('should not be able to create a new statement if the user has an invalid balance', async () => {
+    await request(app).post('/api/v1/users').send(userTest);
+
+    const responseToken = await request(app).post('/api/v1/sessions').send({
+      email: userTest.email,
+      password: userTest.password,
+    })
+
+    const { token } = responseToken.body;
+
+    const response = await request(app).post('/api/v1/statements/withdraw')
+      .send({ amount: 500, description: statementTest.description, type: OperationType.WITHDRAW })
+      .set({ Authorization: `Bearer ${token}` })
+
+    expect(response.status).toBe(400);
   })
 })
