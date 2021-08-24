@@ -64,4 +64,10 @@ describe('Get Balance Controller', () => {
     expect(response.body.statement.length).toBe(2);
     expect(response.body.balance).toBe(420);
   })
+
+  it('should no be able to get the balance of an a non-authenticated user', async () => {
+    const response = await request(app).get('/api/v1/statements/balance').set({ Authorization: 'Bearer Incorrect-Token' });
+
+    expect(response.status).toBe(401);
+  })
 })
