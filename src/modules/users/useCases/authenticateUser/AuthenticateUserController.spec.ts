@@ -40,7 +40,6 @@ describe('Authenticate User Controller', () => {
     expect(response.body).toHaveProperty('user');
     expect(response.body).toHaveProperty('token');
     expect(user).toHaveProperty('id');
-    expect(user).toHaveProperty('id');
     expect(user.name).toEqual(userTest.name);
     expect(user.email).toEqual(userTest.email);
     expect(user).not.toHaveProperty('password');
