@@ -15,12 +15,36 @@ export class StatementsRepository implements IStatementsRepository {
 
   async create({
     user_id,
+    sender_id,
     amount,
     description,
     type
   }: ICreateStatementDTO): Promise<Statement> {
+    if (type === 'transfer') {
+      const senderTransfer = this.repository.create({
+        user_id: sender_id,
+        sender_id,
+        amount,
+        description,
+        type
+      })
+
+      const receiverTransfer = this.repository.create({
+        user_id,
+        sender_id,
+        amount,
+        description,
+        type
+      });
+
+      await this.repository.save(receiverTransfer);
+
+      return this.repository.save(senderTransfer);
+    }
+
     const statement = this.repository.create({
       user_id,
+      sender_id,
       amount,
       description,
       type
@@ -45,11 +69,12 @@ export class StatementsRepository implements IStatementsRepository {
     });
 
     const balance = statement.reduce((acc, operation) => {
-      if (operation.type === 'deposit') {
-        return acc + operation.amount;
-      } else {
-        return acc - operation.amount;
+      if (operation.type === 'deposit') return acc + Number(operation.amount);
+      else if (operation.type === 'transfer') {
+        if (operation.sender_id === user_id) return acc - Number(operation.amount);
+        return acc + Number(operation.amount);
       }
+      else return acc - Number(operation.amount);
     }, 0)
 
     if (with_statement) {
